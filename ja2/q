@@ -1,0 +1,103 @@
+1. Добавление зависимостей в файл pom.xml для поддержки Spring MVC, Tomcat и работу с базой данных. 
+
+
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-webmvc</artifactId>
+    <version>5.3.13</version>
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-jpa</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.apache.tomcat</groupId>
+    <artifactId>tomcat-jdbc</artifactId>
+    <version>9.0.59</version>
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-tomcat</artifactId>
+</dependency>
+
+2. Создание конфигурации базы данных в файле application.properties.
+
+properties
+
+spring.datasource.url=jdbc:mysql://localhost:3306/your_database_name
+spring.datasource.username=your_username
+spring.datasource.password=your_password
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.jpa.hibernate.ddl-auto=update
+
+3. Изменение интерфейса DocumentService и реализации DocumentServiceImpl для сохранения данных 
+
+public interface DocumentService {
+    void createOrder(Order order, Invoice invoice, Waybill waybill);
+    void createInvoice(Invoice invoice, Order order);
+    void createPaymentDocument(PaymentDocument paymentDocument);
+    void createWaybill(Waybill waybill);
+}
+
+@Service
+public class DocumentServiceImpl implements DocumentService {
+
+    @Autowired
+    private OrderRepository orderRepository;
+    @Autowired
+    private InvoiceRepository invoiceRepository;
+    @Autowired
+    private PaymentDocumentRepository paymentDocumentRepository;
+    @Autowired
+    private WaybillRepository waybillRepository;
+
+    public void createOrder(Order order, Invoice invoice, Waybill waybill) {
+        order.setInvoice(invoice);
+        order.setWaybill(waybill);
+        orderRepository.save(order);
+    }
+
+    public void createInvoice(Invoice invoice, Order order) {
+        invoice.setOrder(order);
+        invoiceRepository.save(invoice);
+    }
+
+    public void createPaymentDocument(PaymentDocument paymentDocument) {
+        paymentDocumentRepository.save(paymentDocument);
+    }
+
+    public void createWaybill(Waybill waybill) {
+        waybillRepository.save(waybill);
+    }
+
+    public void displayAllDocuments() {
+        // Implement displaying all documents from the database
+    }
+}
+
+4. Создание контроллера для обработки HTTP 
+
+
+@Controller
+public class DocumentController {
+
+    @Autowired
+    private DocumentService documentService;
+
+    @GetMapping("/")
+    public String homePage(Model model) {
+        // Add logic to fetch and display documents
+        model.addAttribute("orders", documentService.getOrders());
+        model.addAttribute("invoices", documentService.getInvoices());
+        model.addAttribute("paymentDocuments", documentService.getPaymentDocuments());
+        model.addAttribute("waybills", documentService.getWaybills());
+        return "index";
+    }
+
+    @PostMapping("/createOrder")
+    public String createOrder(@ModelAttribute Order order, @ModelAttribute Invoice invoice, @ModelAttribute Waybill waybill) {
+        documentService.createOrder(order, invoice, waybill);
+        return "redirect:/";
+    }
+
+}
