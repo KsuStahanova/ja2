@@ -101,3 +101,75 @@ public class DocumentController {
     }
 
 }
+
+
+
+
+// Анотации над полями 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+@Entity
+@Table(name = "orders")
+public class Order {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "order_id")
+    private int orderId;
+
+    @Column(name = "total_amount")
+    private double totalAmount;
+
+    @Column(name = "order_date")
+    private Date orderDate;
+}
+
+@Entity
+@Table(name = "invoices")
+public class Invoice {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "invoice_id")
+    private int invoiceId;
+
+    @Column(name = "amount")
+    private double amount;
+
+    @Column(name = "invoice_date")
+    private Date invoiceDate;
+}
+
+@Entity
+@Table(name = "payment_documents")
+public class PaymentDocument {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "payment_id")
+    private int paymentId;
+
+    @Column(name = "payment_amount")
+    private double paymentAmount;
+
+    @Column(name = "payment_date")
+    private Date paymentDate;
+}
+
+@Entity
+@Table(name = "waybills")
+public class Waybill {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "waybill_id")
+    private int waybillId;
+
+    @Column(name = "products")
+    private String products;
+
+    @Column(name = "shipping_date")
+    private Date shippingDate;
+}
+
