@@ -1,0 +1,128 @@
+// К старому коду из кт2 добавим 
+// Создадим зависемость  в файл pom.xml
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-webmvc</artifactId>
+    <version>5.3.13</version>
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-jpa</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.apache.tomcat</groupId>
+    <artifactId>tomcat-jdbc</artifactId>
+    <version>9.0.59</version>
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-tomcat</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.postgresql</groupId>
+    <artifactId>postgresql</artifactId>
+    <version>42.2.23</version>
+</dependency>
+
+
+//конфигурация базы данных в файле application.properties:
+spring.datasource.url=jdbc:postgresql://localhost:
+spring.datasource.username=your_username
+spring.datasource.password=your_password
+spring.datasource.driver-class-name=org.postgresql.Driver
+spring.jpa.hibernate.ddl-auto=update
+
+ //Смена интерфейса 
+ public interface DocumentService {
+    void createOrder(Order order);
+    void createInvoice(Invoice invoice);
+    void createPaymentDocument(PaymentDocument paymentDocument);
+    void createWaybill(Waybill waybill);
+}
+
+@Service
+public class DocumentServiceImpl implements DocumentService {
+
+    @Autowired
+    private OrderRepository orderRepository;
+    @Autowired
+    private InvoiceRepository invoiceRepository;
+    @Autowired
+    private PaymentDocumentRepository paymentDocumentRepository;
+    @Autowired
+    private WaybillRepository waybillRepository;
+
+    public void createOrder(Order order) {
+        orderRepository.save(order);
+    }
+
+    public void createInvoice(Invoice invoice) {
+        invoiceRepository.save(invoice);
+    }
+
+    public void createPaymentDocument(PaymentDocument paymentDocument) {
+        paymentDocumentRepository.save(paymentDocument);
+    }
+
+    public void createWaybill(Waybill waybill) {
+        waybillRepository.save(waybill);
+    }
+
+    public List<Order> getOrders() {
+        return orderRepository.findAll();
+    }
+
+    public List<Invoice> getInvoices() {
+        return invoiceRepository.findAll();
+    }
+
+    public List<PaymentDocument> getPaymentDocuments() {
+        return paymentDocumentRepository.findAll();
+    }
+
+    public List<Waybill> getWaybills() {
+        return waybillRepository.findAll();
+    }
+}
+
+// контроллер для обработки HTTP
+@Controller
+public class DocumentController {
+
+    @Autowired
+    private DocumentService documentService;
+
+    @GetMapping("/")
+    public String homePage(Model model) {
+        model.addAttribute("orders", documentService.getOrders());
+        model.addAttribute("invoices", documentService.getInvoices());
+        model.addAttribute("paymentDocuments", documentService.getPaymentDocuments());
+        model.addAttribute("waybills", documentService.getWaybills());
+        return "index";
+    }
+
+    @PostMapping("/createOrder")
+    public String createOrder(@ModelAttribute Order order) {
+        documentService.createOrder(order);
+        return "redirect:/";
+    }
+
+    @PostMapping("/createInvoice")
+    public String createInvoice(@ModelAttribute Invoice invoice) {
+        documentService.createInvoice(invoice);
+        return "redirect:/";
+    }
+
+    @PostMapping("/createPaymentDocument")
+    public String createPaymentDocument(@ModelAttribute PaymentDocument paymentDocument) {
+        documentService.createPaymentDocument(paymentDocument);
+        return "redirect:/";
+    }
+
+    @PostMapping("/createWaybill")
+    public String createWaybill(@ModelAttribute Waybill waybill) {
+        documentService.createWaybill(waybill);
+        return "redirect:/";
+    }
+}
+
